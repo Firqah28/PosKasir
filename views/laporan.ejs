@@ -346,6 +346,10 @@
             <p class="text-xs uppercase text-gray-500 font-semibold mb-1">Keuntungan Bersih</p>
             <p id="printTotalProfit" class="text-xl font-bold text-green-600"></p>
         </div>
+        <div class="print-stat-card">
+            <p class="text-xs uppercase text-gray-500 font-semibold mb-1">Barang Terjual</p>
+            <p id="printTotalQty" class="text-xl font-bold text-gray-900"></p>
+        </div>
     </div>
     
     <div class="mb-8">
@@ -439,21 +443,23 @@
 
             const q = `?startDate=${startDate}&endDate=${endDate}`;
 
-            const [resChart, resHistoryPembelian, resHistoryPenjualan] = await Promise.all([
+            const [resChart, resHistoryPembelian, resHistoryPenjualan, resItems] = await Promise.all([
                 fetch(chartApi),
                 fetch(`/laporan/history-pembelian${q}`),
-                fetch(`/laporan/history-penjualan${q}`)
+                fetch(`/laporan/history-penjualan${q}`),
+                fetch(`/laporan/barang${q}`)
             ]);
 
             const chartData = await resChart.json();
             const historyPembelianData = await resHistoryPembelian.json();
             const historyPenjualanData = await resHistoryPenjualan.json();
+            const itemsData = await resItems.json();
             
             lastSalesData = chartData;
             lastHistoryPembelian = historyPembelianData;
             lastHistoryPenjualan = historyPenjualanData;
 
-            updateStats(historyPenjualanData, historyPembelianData);
+            updateStats(historyPenjualanData, historyPembelianData, itemsData);
             renderCombinedChart(chartData);
             renderHistoryTable(historyPembelianData);
             renderHistoryPenjualanTable(historyPenjualanData);
@@ -463,19 +469,21 @@
         }
     }
 
-    function updateStats(penjualan, pembelian) {
+    function updateStats(penjualan, pembelian, items) {
         let totalSales = 0;
         let totalPurchases = 0;
+        let totalQty = 0;
         
         penjualan.forEach(t => totalSales += Number(t.total_harga));
         pembelian.forEach(p => totalPurchases += Number(p.total_harga));
+        items.forEach(i => totalQty += Number(i.total_qty));
         
         let totalProfit = totalSales - totalPurchases;
 
         document.getElementById('statTotalSales').innerText = 'Rp ' + totalSales.toLocaleString('id-ID');
         document.getElementById('statTotalPurchases').innerText = 'Rp ' + totalPurchases.toLocaleString('id-ID');
         document.getElementById('statTotalProfit').innerText = 'Rp ' + totalProfit.toLocaleString('id-ID');
-        document.getElementById('statTotalQty').innerText = '-';
+        document.getElementById('statTotalQty').innerText = totalQty.toLocaleString('id-ID') + ' Unit';
     }
 
     function renderCombinedChart(data) {
@@ -769,6 +777,7 @@
         document.getElementById('printTotalSales').innerText = document.getElementById('statTotalSales').innerText;
         document.getElementById('printTotalPurchases').innerText = document.getElementById('statTotalPurchases').innerText;
         document.getElementById('printTotalProfit').innerText = document.getElementById('statTotalProfit').innerText;
+        document.getElementById('printTotalQty').innerText = document.getElementById('statTotalQty').innerText;
 
         // Build Penjualan table
         const tbodyPenjualan = document.getElementById('printPenjualanTableBody');

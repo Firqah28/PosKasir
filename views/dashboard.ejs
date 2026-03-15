@@ -138,11 +138,12 @@
 
     async function fetchDashboardData() {
         try {
+            const today = new Date().toLocaleDateString('en-CA');
             // Fetch multiple reports in parallel
             const [resHarian, resBarang, resPerJam] = await Promise.all([
-                fetch('/laporan/harian'),
-                fetch('/laporan/barang'),
-                fetch('/laporan/perjam')
+                fetch(`/laporan/harian?startDate=${today}&endDate=${today}`),
+                fetch(`/laporan/barang?startDate=${today}&endDate=${today}`),
+                fetch(`/laporan/perjam?date=${today}`)
             ]);
             
             const dataHarian = await resHarian.json();
@@ -160,27 +161,20 @@
     }
 
     function updateStatsCards(data) {
-        if(!data || data.length === 0) return;
-        
-        // Match today in local time
-        const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
-        const todayData = data.find(d => new Date(d.tanggal).toLocaleDateString('en-CA') === today);
-
-        if(todayData) {
-            document.getElementById('todaySales').innerText = 'Rp ' + Number(todayData.total_penjualan).toLocaleString('id-ID');
-            document.getElementById('todayPurchases').innerText = 'Rp ' + Number(todayData.total_pembelian).toLocaleString('id-ID');
-            document.getElementById('todayProfit').innerText = 'Rp ' + Number(todayData.keuntungan).toLocaleString('id-ID');
-            
-            // todayData total_transaksi might be omitted in the union query grouped by Date if not handled properly.
-            // Oh right, my modified union query in laporanService does not return total_transaksi anymore because 
-            // I optimized it out. Let me fix the query in laporanService.js, OR just set it to "-" if missing.
-            document.getElementById('todayTx').innerText = todayData.total_transaksi || '-';
-        } else {
+        if(!data || data.length === 0) {
             document.getElementById('todaySales').innerText = 'Rp 0';
             document.getElementById('todayPurchases').innerText = 'Rp 0';
             document.getElementById('todayProfit').innerText = 'Rp 0';
             document.getElementById('todayTx').innerText = '0';
+            return;
         }
+        
+        const todayData = data[0]; // Since we filter for just today, it's the first element
+
+        document.getElementById('todaySales').innerText = 'Rp ' + Number(todayData.total_penjualan).toLocaleString('id-ID');
+        document.getElementById('todayPurchases').innerText = 'Rp ' + Number(todayData.total_pembelian).toLocaleString('id-ID');
+        document.getElementById('todayProfit').innerText = 'Rp ' + Number(todayData.keuntungan).toLocaleString('id-ID');
+        document.getElementById('todayTx').innerText = todayData.total_transaksi || '0';
     }
 
     function renderChart(data) {
@@ -188,21 +182,15 @@
         
         const salesDataPoints = [];
         const volumeDataPoints = [];
-        const now = new Date();
+        const today = new Date().toLocaleDateString('en-CA');
         
-        // Pad the last 24 hours to ensure a connected line graph
-        for(let i = 23; i >= 0; i--) {
-            const d = new Date(now);
-            d.setHours(d.getHours() - i);
-            const yyyy = d.getFullYear();
-            const mm = String(d.getMonth() + 1).padStart(2, '0');
-            const dd = String(d.getDate()).padStart(2, '0');
-            const hh = String(d.getHours()).padStart(2, '0');
+        // Loop from 00:00 to 23:00 for the current day
+        for(let i = 0; i < 24; i++) {
+            const hourStr = String(i).padStart(2, '0');
+            const label = `${hourStr}:00`;
+            const fullHourStr = `${today} ${hourStr}:00:00`;
             
-            const hourStr = `${yyyy}-${mm}-${dd} ${hh}:00:00`;
-            const label = `${hh}:00`;
-            
-            const found = data.find(x => x.jam === hourStr);
+            const found = data.find(x => x.jam === fullHourStr);
             salesDataPoints.push({ label, y: found ? Number(found.total_penjualan) : 0 });
             volumeDataPoints.push({ label, y: found ? Number(found.total_transaksi) : 0 });
         }
