@@ -42,7 +42,8 @@ exports.getLaporanTahunan = async (req, res) => {
 
 exports.getLaporanPerJam = async (req, res) => {
     try {
-        const results = await laporanService.getLaporanPerJam();
+        const { date } = req.query;
+        const results = await laporanService.getLaporanPerJam(date);
         res.json(results);
     } catch (err) {
         res.status(500).json({ error: err.message });

@@ -418,56 +418,43 @@
             const filterDateVal = document.getElementById('filterDate').value || new Date().toLocaleDateString('en-CA');
             const d = new Date(filterDateVal);
             
-            let startDate, endDate;
+            let startDate, endDate, chartApi;
             if (currentPeriod === 'harian') {
-                // 14 days ending on selected date
-                const startStr = new Date(d);
-                startStr.setDate(startStr.getDate() - 13);
-                startDate = startStr.toLocaleDateString('en-CA');
-                endDate = d.toLocaleDateString('en-CA');
+                startDate = filterDateVal;
+                endDate = filterDateVal;
+                chartApi = `/laporan/perjam?date=${filterDateVal}`;
             } else if (currentPeriod === 'bulanan') {
-                // 6 months ending on selected date's month
-                const startStr = new Date(d);
-                startStr.setMonth(startStr.getMonth() - 5);
-                startStr.setDate(1);
-                
-                const endStr = new Date(d.getFullYear(), d.getMonth() + 1, 0); // Last day of chosen month
-                startDate = startStr.toLocaleDateString('en-CA');
-                endDate = endStr.toLocaleDateString('en-CA');
+                const firstDay = new Date(d.getFullYear(), d.getMonth(), 1);
+                const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+                startDate = firstDay.toLocaleDateString('id-ID', { year: 'numeric', month: '2-digit', day: '2-digit' }).split('/').reverse().join('-');
+                // Correctly formatting to YYYY-MM-DD
+                startDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`;
+                endDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
+                chartApi = `/laporan/harian?startDate=${startDate}&endDate=${endDate}`;
             } else {
-                // 5 years ending on selected date's year
-                const startStr = new Date(d.getFullYear() - 4, 0, 1);
-                const endStr = new Date(d.getFullYear(), 11, 31);
-                startDate = startStr.toLocaleDateString('en-CA');
-                endDate = endStr.toLocaleDateString('en-CA');
+                startDate = `${d.getFullYear()}-01-01`;
+                endDate = `${d.getFullYear()}-12-31`;
+                chartApi = `/laporan/bulanan?startDate=${startDate}&endDate=${endDate}`;
             }
 
-            const params = new URLSearchParams();
-            params.append('startDate', startDate);
-            params.append('endDate', endDate);
-            
-            const q = `?${params.toString()}`;
+            const q = `?startDate=${startDate}&endDate=${endDate}`;
 
-            let apiPath = `/laporan/harian${q}`;
-            if (currentPeriod === 'bulanan') apiPath = `/laporan/bulanan${q}`;
-            if (currentPeriod === 'tahunan') apiPath = `/laporan/tahunan${q}`;
-
-            const [resSales, resHistoryPembelian, resHistoryPenjualan] = await Promise.all([
-                fetch(apiPath),
+            const [resChart, resHistoryPembelian, resHistoryPenjualan] = await Promise.all([
+                fetch(chartApi),
                 fetch(`/laporan/history-pembelian${q}`),
                 fetch(`/laporan/history-penjualan${q}`)
             ]);
 
-            const salesData = await resSales.json();
+            const chartData = await resChart.json();
             const historyPembelianData = await resHistoryPembelian.json();
             const historyPenjualanData = await resHistoryPenjualan.json();
             
-            lastSalesData = salesData;
+            lastSalesData = chartData;
             lastHistoryPembelian = historyPembelianData;
             lastHistoryPenjualan = historyPenjualanData;
 
-            updateStats(salesData, historyPembelianData); // Assuming stats only need sales summary
-            renderCombinedChart(salesData);
+            updateStats(historyPenjualanData, historyPembelianData);
+            renderCombinedChart(chartData);
             renderHistoryTable(historyPembelianData);
             renderHistoryPenjualanTable(historyPenjualanData);
 
@@ -476,16 +463,14 @@
         }
     }
 
-    function updateStats(salesData, historyData) {
+    function updateStats(penjualan, pembelian) {
         let totalSales = 0;
         let totalPurchases = 0;
-        let totalProfit = 0;
         
-        salesData.forEach(d => {
-            totalSales += Number(d.total_penjualan);
-            totalPurchases += Number(d.total_pembelian);
-            totalProfit += Number(d.keuntungan);
-        });
+        penjualan.forEach(t => totalSales += Number(t.total_harga));
+        pembelian.forEach(p => totalPurchases += Number(p.total_harga));
+        
+        let totalProfit = totalSales - totalPurchases;
 
         document.getElementById('statTotalSales').innerText = 'Rp ' + totalSales.toLocaleString('id-ID');
         document.getElementById('statTotalPurchases').innerText = 'Rp ' + totalPurchases.toLocaleString('id-ID');
@@ -498,39 +483,39 @@
         const volumeDataPoints = [];
         
         const filterDateVal = document.getElementById('filterDate').value || new Date().toLocaleDateString('en-CA');
-        const endD = new Date(filterDateVal);
+        const filterD = new Date(filterDateVal);
 
         if (currentPeriod === 'harian') {
-            // Pad the last 14 days ending on filterDate
-            for (let i = 13; i >= 0; i--) {
-                const d = new Date(endD);
-                d.setDate(d.getDate() - i);
-                const dateStr = d.toLocaleDateString('en-CA');
-                const found = data.find(x => new Date(x.tanggal).toLocaleDateString('en-CA') === dateStr);
+            // Hours 00 to 23
+            for (let i = 0; i < 24; i++) {
+                const hourStr = String(i).padStart(2, '0');
+                const label = `${hourStr}:00`;
+                const found = data.find(x => x.jam.includes(` ${hourStr}:00:00`));
                 
-                const label = `${d.getDate()}/${d.getMonth() + 1}`;
                 salesDataPoints.push({ label, y: found ? Number(found.total_penjualan) : 0 });
                 volumeDataPoints.push({ label, y: found ? Number(found.total_transaksi) : 0 });
             }
         } else if (currentPeriod === 'bulanan') {
-            // Pad the last 6 months ending on filterDate's month
-            for (let i = 5; i >= 0; i--) {
-                const d = new Date(endD);
-                d.setMonth(d.getMonth() - i);
-                const monthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-                const found = data.find(x => x.bulan === monthStr);
+            // Days of the month
+            const lastDay = new Date(filterD.getFullYear(), filterD.getMonth() + 1, 0).getDate();
+            for (let i = 1; i <= lastDay; i++) {
+                const dayDate = new Date(filterD.getFullYear(), filterD.getMonth(), i);
+                const dateStr = dayDate.toLocaleDateString('en-CA');
+                const found = data.find(x => new Date(x.tanggal).toLocaleDateString('en-CA') === dateStr);
                 
-                salesDataPoints.push({ label: monthStr, y: found ? Number(found.total_penjualan) : 0 });
-                volumeDataPoints.push({ label: monthStr, y: found ? Number(found.total_transaksi) : 0 });
+                const label = `${i}`;
+                salesDataPoints.push({ label, y: found ? Number(found.total_penjualan) : 0 });
+                volumeDataPoints.push({ label, y: found ? Number(found.total_transaksi) : 0 });
             }
         } else {
-            // Pad the last 5 years ending on filterDate's year
-            for (let i = 4; i >= 0; i--) {
-                const yearStr = String(endD.getFullYear() - i);
-                const found = data.find(x => String(x.tahun) === yearStr);
+            // Months of the year
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+            for (let i = 0; i < 12; i++) {
+                const monthStr = `${filterD.getFullYear()}-${String(i + 1).padStart(2, '0')}`;
+                const found = data.find(x => x.bulan === monthStr);
                 
-                salesDataPoints.push({ label: yearStr, y: found ? Number(found.total_penjualan) : 0 });
-                volumeDataPoints.push({ label: yearStr, y: found ? Number(found.total_transaksi) : 0 });
+                salesDataPoints.push({ label: monthNames[i], y: found ? Number(found.total_penjualan) : 0 });
+                volumeDataPoints.push({ label: monthNames[i], y: found ? Number(found.total_transaksi) : 0 });
             }
         }
 

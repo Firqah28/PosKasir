@@ -136,7 +136,7 @@ exports.getLaporanTahunan = (startDate, endDate) => {
     });
 };
 
-exports.getLaporanPerJam = () => {
+exports.getLaporanPerJam = (date) => {
     return new Promise((resolve, reject) => {
         const query = `
             SELECT 
@@ -148,16 +148,16 @@ exports.getLaporanPerJam = () => {
             FROM (
                 SELECT created_at as tanggal_asli, 1 as total_transaksi, total_harga as total_penjualan, 0 as total_pembelian
                 FROM transaksi
-                WHERE created_at >= NOW() - INTERVAL 24 HOUR
+                WHERE DATE(created_at) = ?
                 UNION ALL
                 SELECT created_at as tanggal_asli, 0 as total_transaksi, 0 as total_penjualan, total_harga as total_pembelian
                 FROM pembelian
-                WHERE created_at >= NOW() - INTERVAL 24 HOUR
+                WHERE DATE(created_at) = ?
             ) as hourly_summary
             GROUP BY jam
             ORDER BY jam ASC
         `;
-        db.query(query, (err, results) => {
+        db.query(query, [date, date], (err, results) => {
             if (err) reject(err);
             else resolve(results);
         });
