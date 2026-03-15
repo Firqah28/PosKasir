@@ -1,0 +1,79 @@
+<!-- Sidebar Partial -->
+<div id="sidebar" class="fixed inset-y-0 left-0 z-50 bg-indigo-700 text-white shadow-lg flex flex-col hidden md:flex sidebar-transition overflow-hidden">
+    <div id="sidebar-header" class="flex h-16 shrink-0 items-center justify-between border-b border-indigo-600 bg-indigo-800 px-4">
+        <h1 class="text-xl font-bold tracking-tight sidebar-header-text">System Penjualan</h1>
+        <button onclick="toggleSidebar()" class="p-1 rounded-md hover:bg-indigo-600 focus:outline-none">
+            <svg id="toggleIcon" class="h-6 w-6 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path id="iconExpand" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                <path id="iconCollapse" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+            </svg>
+        </button>
+    </div>
+    <div class="flex flex-1 flex-col overflow-y-auto">
+        <nav class="flex-1 px-4 py-6 space-y-2">
+            <a href="/dashboard" class="sidebar-nav-item group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-indigo-600 hover:text-white transition-colors">
+                <svg class="h-6 w-6 shrink-0 text-indigo-300 group-hover:text-white md:mr-3" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
+                <span class="sidebar-text">Dashboard</span>
+            </a>
+            <a href="/pembelian-view" class="sidebar-nav-item group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-indigo-600 hover:text-white transition-colors">
+                <svg class="h-6 w-6 shrink-0 text-indigo-300 group-hover:text-white md:mr-3" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span class="sidebar-text">Pembelian (Restock)</span>
+            </a>
+            <a href="/kasir" class="sidebar-nav-item group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-indigo-600 hover:text-white transition-colors">
+                <svg class="h-6 w-6 shrink-0 text-indigo-300 group-hover:text-white md:mr-3" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg>
+                <span class="sidebar-text">Kasir (Penjualan)</span>
+            </a>
+            <a href="/barang-view" class="sidebar-nav-item group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-indigo-600 hover:text-white transition-colors">
+                <svg class="h-6 w-6 shrink-0 text-indigo-300 group-hover:text-white md:mr-3" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg>
+                <span class="sidebar-text">Manajemen Barang</span>
+            </a>
+            <a href="/kategori-view" class="sidebar-nav-item group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-indigo-600 hover:text-white transition-colors">
+                <svg class="h-6 w-6 shrink-0 text-indigo-300 group-hover:text-white md:mr-3" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" /><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" /></svg>
+                <span class="sidebar-text">Kategori Barang</span>
+            </a>
+            <a href="/supplier-view" class="sidebar-nav-item group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-indigo-600 hover:text-white transition-colors">
+                <svg class="h-6 w-6 shrink-0 text-indigo-300 group-hover:text-white md:mr-3" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
+                <span class="sidebar-text">Supplier</span>
+            </a>
+            <a href="/laporan-view" class="sidebar-nav-item group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-indigo-600 hover:text-white transition-colors">
+                <svg class="h-6 w-6 shrink-0 text-indigo-300 group-hover:text-white md:mr-3" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>
+                <span class="sidebar-text">Laporan</span>
+            </a>
+        </nav>
+    </div>
+    <div class="border-t border-indigo-600 p-4">
+        <form action="/auth/logout" method="POST" class="w-full">
+            <button type="submit" class="sidebar-nav-item group flex w-full items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-indigo-600 transition-colors">
+                <svg class="h-6 w-6 shrink-0 text-indigo-300 group-hover:text-white md:mr-3" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
+                <span class="sidebar-text">Logout</span>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleSidebar() {
+        const body = document.body;
+        const isMini = body.classList.toggle('sidebar-mini');
+        localStorage.setItem('sidebar-mini', isMini);
+        updateSidebarIcons(isMini);
+    }
+
+    function updateSidebarIcons(isMini) {
+        const iconExpand = document.getElementById('iconExpand');
+        const iconCollapse = document.getElementById('iconCollapse');
+        if (isMini) {
+            iconExpand.classList.remove('hidden');
+            iconCollapse.classList.add('hidden');
+        } else {
+            iconExpand.classList.add('hidden');
+            iconCollapse.classList.remove('hidden');
+        }
+    }
+
+    // Initialize sidebar icons on page load
+    window.addEventListener('DOMContentLoaded', () => {
+        const isMini = localStorage.getItem('sidebar-mini') === 'true';
+        updateSidebarIcons(isMini);
+    });
+</script>

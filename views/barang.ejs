@@ -1,0 +1,322 @@
+<%- include('partials/header') %>
+<div class="min-h-full bg-gray-50 flex">
+    <%- include('partials/sidebar') %>
+
+    <!-- Main Content -->
+    <div class="flex-1 main-content-wrapper sidebar-transition flex flex-col h-screen overflow-hidden">
+        <main class="flex-1 overflow-y-auto">
+            <div class="py-10 px-4 sm:px-6 lg:px-8">
+                <div class="sm:flex sm:items-center">
+                    <div class="sm:flex-auto">
+                        <h1 class="text-3xl font-bold tracking-tight text-gray-900">Manajemen Barang</h1>
+                        <p class="mt-2 text-sm text-gray-700">Kelola daftar barang, kategori, supplier, harga, dan stok.</p>
+                    </div>
+                    <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none flex items-center space-x-4">
+                        <div class="flex items-center space-x-2 bg-white px-2 py-1 rounded-md border border-gray-300">
+                            <span class="text-xs text-gray-500 font-medium whitespace-nowrap">Filter Kategori:</span>
+                            <select id="filterKategori" onchange="applyFilter()" class="block border-0 py-1.5 text-gray-900 focus:ring-0 sm:text-sm sm:leading-6 text-xs w-full bg-transparent">
+                                <option value="">Semua Kategori</option>
+                            </select>
+                        </div>
+                        <button type="button" onclick="openModal()" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Tambah Barang</button>
+                    </div>
+                </div>
+                
+                <div class="mt-8 flow-root">
+                    <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                        <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                            <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+                                <table class="min-w-full divide-y divide-gray-300">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Barcode</th>
+                                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Nama Barang</th>
+                                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Kategori</th>
+                                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Supplier</th>
+                                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Harga Beli</th>
+                                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Harga Jual</th>
+                                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Stok</th>
+                                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Satuan</th>
+                                            <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                                                <span class="sr-only">Aksi</span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="barangList" class="divide-y divide-gray-200 bg-white">
+                                        <!-- Rendered via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div id="barangModal" class="relative z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+  <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+    <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+      <div class="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-xl sm:p-6">
+        <div>
+          <h3 class="text-lg font-semibold leading-6 text-gray-900" id="modal-title">Data Barang</h3>
+          <div class="mt-4">
+            <form id="barangForm">
+                <input type="hidden" id="barang_id">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium leading-6 text-gray-900 mb-2">Metode Input Barcode</label>
+                        <div class="flex items-center space-x-4 mb-2">
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="radio" name="barcodeMode" value="manual" checked class="form-radio text-indigo-600 focus:ring-indigo-600 h-4 w-4" onchange="toggleBarcodeMode()">
+                                <span class="ml-2 text-sm text-gray-700">Manual</span>
+                            </label>
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="radio" name="barcodeMode" value="scanner" class="form-radio text-indigo-600 focus:ring-indigo-600 h-4 w-4" onchange="toggleBarcodeMode()">
+                                <span class="ml-2 text-sm text-gray-700">Scanner USB</span>
+                            </label>
+                        </div>
+                        <label id="barcodeLabel" class="block text-sm font-medium leading-6 text-gray-900">Barcode (Manual)</label>
+                        <input type="text" id="barcode" class="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 px-2" placeholder="Ketik atau scan barcode...">
+                        <p id="scannerHelp" class="mt-1 text-xs text-indigo-600 hidden">Mode Scanner aktif. Target input sudah diset. Scan barcode.</p>
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium leading-6 text-gray-900">Nama Barang *</label>
+                        <input type="text" id="nama_barang" required class="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 px-2">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium leading-6 text-gray-900">Kategori</label>
+                        <select id="kategori_id" class="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 px-2">
+                            <option value="">-- Pilih Kategori --</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium leading-6 text-gray-900">Supplier</label>
+                        <select id="supplier_id" class="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 px-2">
+                            <option value="">-- Pilih Supplier --</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium leading-6 text-gray-900">Harga Beli *</label>
+                        <input type="number" id="harga_beli" required class="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 px-2">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium leading-6 text-gray-900">Harga Jual *</label>
+                        <input type="number" id="harga_jual" required class="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 px-2">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium leading-6 text-gray-900">Stok Awal*</label>
+                        <input type="number" id="stok" required class="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 px-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium leading-6 text-gray-900">Satuan</label>
+                        <input type="text" id="satuan" class="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 px-2">
+                    </div>
+                </div>
+                <div class="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
+                    <button type="submit" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:col-start-2">Simpan</button>
+                    <button type="button" onclick="closeModal()" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0">Batal</button>
+                </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    let allBarang = [];
+
+    async function loadBarang() {
+        try {
+            const res = await fetch('/barang');
+            if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+            allBarang = await res.json();
+            console.log("Loaded barang items:", allBarang.length);
+            applyFilter();
+        } catch (error) {
+            console.error('Error fetching barang:', error);
+            alert('Gagal memuat daftar barang. Cek koneksi atau server.');
+        }
+    }
+
+    function renderBarangTable(data) {
+        const tbody = document.getElementById('barangList');
+        tbody.innerHTML = '';
+        data.forEach(b => {
+            tbody.innerHTML += `
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">${b.barcode || '-'}</td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">${b.nama_barang}</td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                            ${b.nama_kategori || 'Tanpa Kategori'}
+                        </span>
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">${b.nama_supplier || '-'}</td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">Rp ${Number(b.harga_beli).toLocaleString('id-ID')}</td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">Rp ${Number(b.harga_jual).toLocaleString('id-ID')}</td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <span class="${b.stok <= 5 ? 'text-red-600 font-bold' : ''}">${b.stok}</span>
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">${b.satuan || '-'}</td>
+                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                        <button onclick='editBarang(${JSON.stringify(b)})' class="text-indigo-600 hover:text-indigo-900 mr-4">Edit</button>
+                        <button onclick="deleteBarang(${b.id})" class="text-red-600 hover:text-red-900">Hapus</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function applyFilter() {
+        const selectedKategori = document.getElementById('filterKategori').value;
+        let filteredData = allBarang;
+        
+        // Ensure "Semua Kategori" (empty string) isn't evaluated as a filter match.
+        // It should just return allBarang.
+        // Ensure "Semua Kategori" (empty string) isn't evaluated as a filter match.
+        // It should just return allBarang.
+        if (selectedKategori && selectedKategori !== "") {
+            filteredData = allBarang.filter(b => {
+                // b.kategori_id might be null for unassigned items.
+                if (b.kategori_id === null || b.kategori_id === undefined) return false;
+                return String(b.kategori_id) === String(selectedKategori);
+            });
+        }
+
+        
+        console.log("Filtering by category ID:", selectedKategori, ". Results:", filteredData.length);
+        renderBarangTable(filteredData);
+    }
+
+    async function fetchOptions(endpoint, selectId, isFilter = false) {
+        try {
+            const res = await fetch(endpoint);
+            const data = await res.json();
+            const select = document.getElementById(selectId);
+            
+            if (isFilter) {
+                select.innerHTML = '<option value="">Semua Kategori</option>';
+            } else {
+                select.innerHTML = select.options[0].outerHTML;
+            }
+            
+            data.forEach(item => {
+                const nameField = endpoint === '/kategori' ? 'nama_kategori' : 'nama_supplier';
+                select.innerHTML += `<option value="${item.id}">${item[nameField]}</option>`;
+            });
+        } catch (e) {
+            console.error('Error fetching options:', e);
+        }
+    }
+
+    function openModal() {
+        document.getElementById('barangModal').classList.remove('hidden');
+        document.getElementById('barangForm').reset();
+        document.getElementById('barang_id').value = '';
+        fetchOptions('/kategori', 'kategori_id');
+        fetchOptions('/supplier', 'supplier_id');
+    }
+
+    function closeModal() {
+        document.getElementById('barangModal').classList.add('hidden');
+    }
+
+    function editBarang(b) {
+        openModal();
+        setTimeout(() => { // wait for options to load
+            document.getElementById('barang_id').value = b.id;
+            document.getElementById('barcode').value = b.barcode || '';
+            document.getElementById('nama_barang').value = b.nama_barang;
+            document.getElementById('kategori_id').value = b.kategori_id || '';
+            document.getElementById('supplier_id').value = b.supplier_id || '';
+            document.getElementById('harga_beli').value = b.harga_beli;
+            document.getElementById('harga_jual').value = b.harga_jual;
+            document.getElementById('stok').value = b.stok;
+            document.getElementById('satuan').value = b.satuan || '';
+        }, 100);
+    }
+
+    async function deleteBarang(id) {
+        if(confirm('Yakin ingin menghapus barang ini?')) {
+            await fetch('/barang/' + id, { method: 'DELETE' });
+            loadBarang();
+        }
+    }
+
+    document.getElementById('barangForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('barang_id').value;
+        const payload = {
+            barcode: document.getElementById('barcode').value,
+            nama_barang: document.getElementById('nama_barang').value,
+            kategori_id: document.getElementById('kategori_id').value,
+            supplier_id: document.getElementById('supplier_id').value,
+            harga_beli: document.getElementById('harga_beli').value,
+            harga_jual: document.getElementById('harga_jual').value,
+            stok: document.getElementById('stok').value,
+            satuan: document.getElementById('satuan').value,
+        };
+
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? '/barang/' + id : '/barang';
+
+        const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json();
+            alert("Gagal menyimpan: " + (errorData.error || 'Terjadi kesalahan pada server'));
+        } else {
+            closeModal();
+            loadBarang();
+        }
+    });
+
+    function toggleBarcodeMode() {
+        const mode = document.querySelector('input[name="barcodeMode"]:checked').value;
+        const label = document.getElementById('barcodeLabel');
+        const help = document.getElementById('scannerHelp');
+        const barcodeInput = document.getElementById('barcode');
+        
+        if(mode === 'scanner') {
+            label.innerText = 'Barcode (Scanner USB)';
+            help.classList.remove('hidden');
+            barcodeInput.focus();
+        } else {
+            label.innerText = 'Barcode (Manual)';
+            help.classList.add('hidden');
+        }
+    }
+
+    document.getElementById('barcode').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault(); 
+            document.getElementById('nama_barang').focus();
+        }
+    });
+
+    // Initialize page functions
+    async function initPage() {
+        await fetchOptions('/kategori', 'filterKategori', true);
+        await loadBarang();
+    }
+    
+    initPage();
+</script>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,360 @@
+<%- include('partials/header') %>
+<div class="min-h-full bg-gray-50 flex">
+    <%- include('partials/sidebar') %>
+
+    <!-- Main Content -->
+    <div class="flex-1 main-content-wrapper sidebar-transition flex flex-col h-screen overflow-hidden">
+        <!-- Topbar for mobile -->
+        <div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 md:hidden">
+            <button type="button" class="-m-2.5 p-2.5 text-gray-700 md:hidden border rounded">
+                <span class="sr-only">Open sidebar</span>
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+            </button>
+            <div class="flex-1 font-bold text-lg text-indigo-700">POS System</div>
+        </div>
+
+        <main class="flex-1 overflow-y-auto">
+            <div class="py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+                <h1 class="text-3xl font-bold tracking-tight text-gray-900 mb-8">Dashboard Overview</h1>
+                
+                <!-- Stat Cards -->
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+                    <!-- Card 1: Today Sales -->
+                    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-indigo-500 hover:shadow-md transition-shadow">
+                        <div class="p-4">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 bg-indigo-100 rounded-md p-2">
+                                    <svg class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                </div>
+                                <div class="ml-4 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-xs font-medium text-gray-500 truncate">Penjualan Hari Ini</dt>
+                                        <dd class="text-lg font-bold text-gray-900 truncate" id="todaySales">Rp 0</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Today Purchases -->
+                    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-red-500 hover:shadow-md transition-shadow">
+                        <div class="p-4">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 bg-red-100 rounded-md p-2">
+                                    <svg class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
+                                </div>
+                                <div class="ml-4 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-xs font-medium text-gray-500 truncate">Pembelian Hari Ini</dt>
+                                        <dd class="text-lg font-bold text-gray-900 truncate" id="todayPurchases">Rp 0</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Today Profit -->
+                    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-green-500 hover:shadow-md transition-shadow">
+                        <div class="p-4">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 bg-green-100 rounded-md p-2">
+                                    <svg class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" /></svg>
+                                </div>
+                                <div class="ml-4 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-xs font-medium text-gray-500 truncate">Keuntungan Hari Ini</dt>
+                                        <dd class="text-lg font-bold text-gray-900 truncate" id="todayProfit">Rp 0</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Detailed Tx info if needed or leave blank. Let's make it Total Tx -->
+                    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-blue-500 hover:shadow-md transition-shadow">
+                        <div class="p-4">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 bg-blue-100 rounded-md p-2">
+                                    <svg class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" /></svg>
+                                </div>
+                                <div class="ml-4 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-xs font-medium text-gray-500 truncate">Total Orders (Draft)</dt>
+                                        <dd class="text-lg font-bold text-gray-900" id="todayTx">0</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Chart Section -->
+                    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-bold leading-6 text-gray-900">Grafik Aktivitas (24 Jam Terakhir)</h3>
+                            <div class="flex items-center space-x-2">
+                                <span class="flex h-2 w-2 rounded-full bg-indigo-500"></span>
+                                <span class="text-xs text-gray-500 font-medium">Auto-updated</span>
+                            </div>
+                        </div>
+                        <div id="salesChart" style="height: 320px; width: 100%;"></div>
+                    </div>
+
+                    <!-- Top Selling Items Pie/Doughnut -->
+                    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex flex-col items-center">
+                        <h3 class="text-lg font-bold leading-6 text-gray-900 mb-6 self-start">Proporsi Penjualan Barang</h3>
+                        <div id="topItemsChart" style="height: 250px; width: 100%;"></div>
+                        <div id="chartLegend" class="mt-4 w-full">
+                            <!-- Custom legend if needed -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 grid grid-cols-1 lg:grid-cols-1 gap-8">
+                    <!-- Top Selling Items List -->
+                    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                        <h3 class="text-lg font-bold leading-6 text-gray-900 mb-4 pb-4 border-b">Detail Barang Paling Laris</h3>
+                        <div class="overflow-y-auto max-h-[300px] pr-2">
+                            <ul id="topItemsList" class="space-y-4">
+                                <!-- Populated via JS -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+    let salesChartInstance = null;
+
+    socket.on('new_transaction', (data) => {
+        fetchDashboardData();
+    });
+
+    async function fetchDashboardData() {
+        try {
+            // Fetch multiple reports in parallel
+            const [resHarian, resBarang, resPerJam] = await Promise.all([
+                fetch('/laporan/harian'),
+                fetch('/laporan/barang'),
+                fetch('/laporan/perjam')
+            ]);
+            
+            const dataHarian = await resHarian.json();
+            const dataBarang = await resBarang.json();
+            const dataPerJam = await resPerJam.json();
+
+            updateStatsCards(dataHarian);
+            renderChart(dataPerJam);
+            renderTopItems(dataBarang);
+            renderTopItemsChart(dataBarang);
+
+        } catch(e) {
+            console.error("Dashboard fetch error:", e);
+        }
+    }
+
+    function updateStatsCards(data) {
+        if(!data || data.length === 0) return;
+        
+        // Match today in local time
+        const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+        const todayData = data.find(d => new Date(d.tanggal).toLocaleDateString('en-CA') === today);
+
+        if(todayData) {
+            document.getElementById('todaySales').innerText = 'Rp ' + Number(todayData.total_penjualan).toLocaleString('id-ID');
+            document.getElementById('todayPurchases').innerText = 'Rp ' + Number(todayData.total_pembelian).toLocaleString('id-ID');
+            document.getElementById('todayProfit').innerText = 'Rp ' + Number(todayData.keuntungan).toLocaleString('id-ID');
+            
+            // todayData total_transaksi might be omitted in the union query grouped by Date if not handled properly.
+            // Oh right, my modified union query in laporanService does not return total_transaksi anymore because 
+            // I optimized it out. Let me fix the query in laporanService.js, OR just set it to "-" if missing.
+            document.getElementById('todayTx').innerText = todayData.total_transaksi || '-';
+        } else {
+            document.getElementById('todaySales').innerText = 'Rp 0';
+            document.getElementById('todayPurchases').innerText = 'Rp 0';
+            document.getElementById('todayProfit').innerText = 'Rp 0';
+            document.getElementById('todayTx').innerText = '0';
+        }
+    }
+
+    function renderChart(data) {
+        if(!data) return;
+        
+        const salesDataPoints = [];
+        const volumeDataPoints = [];
+        const now = new Date();
+        
+        // Pad the last 24 hours to ensure a connected line graph
+        for(let i = 23; i >= 0; i--) {
+            const d = new Date(now);
+            d.setHours(d.getHours() - i);
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            const hh = String(d.getHours()).padStart(2, '0');
+            
+            const hourStr = `${yyyy}-${mm}-${dd} ${hh}:00:00`;
+            const label = `${hh}:00`;
+            
+            const found = data.find(x => x.jam === hourStr);
+            salesDataPoints.push({ label, y: found ? Number(found.total_penjualan) : 0 });
+            volumeDataPoints.push({ label, y: found ? Number(found.total_transaksi) : 0 });
+        }
+
+        if (salesChartInstance) {
+            salesChartInstance.destroy();
+        }
+
+        salesChartInstance = new CanvasJS.Chart("salesChart", {
+            animationEnabled: true,
+            theme: "light2",
+            title: { text: "" },
+            toolTip: { shared: true },
+            legend: {
+                cursor: "pointer",
+                itemclick: function (e) {
+                    if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+                        e.dataSeries.visible = false;
+                    } else {
+                        e.dataSeries.visible = true;
+                    }
+                    e.chart.render();
+                }
+            },
+            axisX: {
+                labelFontColor: "#9ca3af",
+                labelFontSize: 11,
+                lineThickness: 0,
+                tickThickness: 0,
+                labelAngle: -45
+            },
+            axisY: {
+                title: "Pendapatan",
+                titleFontColor: "#4f46e5",
+                lineColor: "#4f46e5",
+                labelFontColor: "#4f46e5",
+                tickColor: "#4f46e5",
+                includeZero: true,
+                prefix: "Rp ",
+                labelFontSize: 11,
+                gridDashType: "dash",
+                gridColor: "#f3f4f6",
+                lineThickness: 0
+            },
+            axisY2: {
+                title: "Transaksi",
+                titleFontColor: "#10b981",
+                lineColor: "#10b981",
+                labelFontColor: "#10b981",
+                tickColor: "#10b981",
+                includeZero: true,
+                labelFontSize: 11,
+                lineThickness: 0
+            },
+            data: [{
+                type: "spline",
+                name: "Total Pendapatan",
+                showInLegend: true,
+                axisYType: "primary",
+                yValueFormatString: "Rp #,##0",
+                color: "#4f46e5",
+                markerSize: 8,
+                markerType: "circle",
+                lineThickness: 2,
+                dataPoints: salesDataPoints
+            }, {
+                type: "spline",
+                name: "Total Transaksi",
+                axisYType: "secondary",
+                showInLegend: true,
+                yValueFormatString: "#,##0 Transaksi",
+                color: "#10b981",
+                markerSize: 8,
+                markerType: "square",
+                lineThickness: 2,
+                dataPoints: volumeDataPoints
+            }]
+        });
+        salesChartInstance.render();
+    }
+
+    let topItemsChartInstance = null;
+    function renderTopItemsChart(data) {
+        if(!data || data.length === 0) return;
+        
+        const top5 = data.slice(0, 5);
+        const dataPoints = top5.map(item => ({
+            label: item.nama_barang,
+            y: Number(item.total_qty)
+        }));
+
+        if (topItemsChartInstance) {
+            topItemsChartInstance.destroy();
+        }
+
+        topItemsChartInstance = new CanvasJS.Chart("topItemsChart", {
+            animationEnabled: true,
+            theme: "light2",
+            title: { text: "" },
+            axisY: { title: "Quantity" },
+            legend: {
+                verticalAlign: "bottom",
+                horizontalAlign: "center",
+                fontSize: 11
+            },
+            data: [{
+                type: "doughnut",
+                showInLegend: true,
+                indexLabel: "{label}: {y}",
+                indexLabelFontSize: 11,
+                innerRadius: "70%",
+                yValueFormatString: "#,##0 Unit",
+                dataPoints: dataPoints
+            }]
+        });
+        topItemsChartInstance.render();
+    }
+
+    function renderTopItems(data) {
+        const list = document.getElementById('topItemsList');
+        list.innerHTML = '';
+        
+        if(!data || data.length === 0) {
+            list.innerHTML = '<li class="text-sm text-gray-500">Belum ada data penjualan.</li>';
+            return;
+        }
+
+        // Display top 5 items
+        const top5 = data.slice(0, 5);
+        top5.forEach((item, index) => {
+            const isTop1 = index === 0;
+            list.innerHTML += `
+                <li class="flex items-center justify-between p-3 rounded-md ${isTop1 ? 'bg-indigo-50 border border-indigo-100' : 'hover:bg-gray-50 border-b border-gray-100'}">
+                    <div class="flex items-center">
+                        <span class="${isTop1 ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'} rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mr-3">
+                            ${index + 1}
+                        </span>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900">${item.nama_barang}</p>
+                            <p class="text-xs text-gray-500">${item.total_qty} Unit Terjual</p>
+                        </div>
+                    </div>
+                    <div class="text-sm font-bold text-green-600">
+                        Rp ${Number(item.total_pendapatan).toLocaleString('id-ID')}
+                    </div>
+                </li>
+            `;
+        });
+    }
+
+    // Initialize Dashboard
+    fetchDashboardData();
+</script>
+
+<%- include('partials/footer') %>

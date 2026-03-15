@@ -1,0 +1,836 @@
+<%- include('partials/header') %>
+<div class="min-h-full bg-gray-50 flex">
+    <%- include('partials/sidebar') %>
+
+    <!-- Main Content -->
+    <div class="flex-1 main-content-wrapper sidebar-transition flex flex-col h-screen overflow-hidden">
+        <main class="flex-1 overflow-y-auto">
+            <div class="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+                    <div>
+                        <h1 class="text-3xl font-bold tracking-tight text-gray-900">Laporan Penjualan</h1>
+                        <p class="mt-2 text-sm text-gray-600">Analisa performa penjualan toko Anda secara real-time.</p>
+                    </div>
+                    <div class="mt-4 md:mt-0 flex flex-wrap items-center gap-3">
+                        <div class="flex items-center space-x-2 bg-white px-2 py-1 rounded-md border border-gray-300">
+                            <span class="text-xs text-gray-500 font-medium">Tanggal:</span>
+                            <input type="date" id="filterDate" onchange="loadLaporan()" class="block border-0 py-1.5 text-gray-900 focus:ring-0 sm:text-sm sm:leading-6 text-xs">
+                        </div>
+                        <select id="periodSelect" onchange="switchPeriod()" class="block w-40 rounded-md border-0 py-2 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                            <option value="harian">Harian</option>
+                            <option value="bulanan">Bulanan</option>
+                            <option value="tahunan">Tahunan</option>
+                        </select>
+                        <button onclick="printRekapan()" class="inline-flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm border border-gray-300 hover:bg-gray-50">
+                            <svg class="-ml-0.5 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0v3.396c0 .662.538 1.2 1.2 1.2h8.1c.662 0 1.2-.538 1.2-1.2V9.034z" />
+                            </svg>
+                            Cetak
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stat Cards -->
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center space-x-4">
+                        <div class="bg-indigo-50 p-3 rounded-lg">
+                            <svg class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Penjualan</p>
+                            <p id="statTotalSales" class="text-2xl font-bold text-gray-900">Rp 0</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center space-x-4">
+                        <div class="bg-red-50 p-3 rounded-lg">
+                            <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" /></svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Pembelian</p>
+                            <p id="statTotalPurchases" class="text-2xl font-bold text-gray-900">Rp 0</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center space-x-4">
+                        <div class="bg-green-50 p-3 rounded-lg">
+                            <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" /></svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Keuntungan Bersih</p>
+                            <p id="statTotalProfit" class="text-2xl font-bold text-gray-900">Rp 0</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center space-x-4">
+                        <div class="bg-orange-50 p-3 rounded-lg">
+                            <svg class="h-6 w-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Barang Terjual</p>
+                            <p id="statTotalQty" class="text-2xl font-bold text-gray-900">0 Unit</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-bold text-gray-900" id="chartTitle">Analisa Penjualan & Pendapatan</h3>
+                    </div>
+                    <div id="combinedSalesChart" style="height: 380px; width: 100%;"></div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- History Penjualan -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider">History Penjualan</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Tanggal</th>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Kasir</th>
+                                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Total</th>
+                                        <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historyPenjualanBody" class="divide-y divide-gray-100">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- History Pembelian -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider">History Pembelian</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Tanggal</th>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Admin</th>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Supplier</th>
+                                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Total Pembelian</th>
+                                        <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historyTableBody" class="divide-y divide-gray-100">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Receipt Modal -->
+<div id="receiptModal" class="relative z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeDetailModal()"></div>
+    <div class="fixed inset-0 z-10 overflow-y-auto">
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md">
+                <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 border-b border-gray-100">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold leading-6 text-gray-900" id="modal-title">Struk Pembelian</h3>
+                        <button type="button" onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-white px-4 py-5 sm:p-6 text-sm">
+                    <!-- Header Info -->
+                    <div class="mb-4 text-gray-600">
+                        <p><strong>ID:</strong> P-<span id="detailId"></span></p>
+                        <p><strong>Tanggal:</strong> <span id="detailTanggal"></span></p>
+                        <p><strong>Admin:</strong> <span id="detailAdmin"></span></p>
+                        <p><strong>Supplier:</strong> <span id="detailSupplier"></span></p>
+                    </div>
+                    
+                    <div class="border-t border-dashed border-gray-300 py-4 my-4">
+                        <table class="w-full text-left text-gray-600">
+                            <thead>
+                                <tr>
+                                    <th class="pb-2 font-medium">Barang</th>
+                                    <th class="pb-2 font-medium text-right">Qty</th>
+                                    <th class="pb-2 font-medium text-right">Harga</th>
+                                    <th class="pb-2 font-medium text-right">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailItemsBody" class="divide-y divide-gray-100">
+                                <!-- Populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="flex justify-between items-center font-bold text-lg text-gray-900 mt-4">
+                        <span>Total:</span>
+                        <span id="detailTotal" class="text-red-600"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Penjualan Receipt Modal -->
+<div id="receiptPenjualanModal" class="relative z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeDetailPenjualanModal()"></div>
+    <div class="fixed inset-0 z-10 overflow-y-auto">
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md">
+                <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 border-b border-gray-100">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold leading-6 text-gray-900" id="modal-title">Struk Penjualan</h3>
+                        <button type="button" onclick="closeDetailPenjualanModal()" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-white px-4 py-5 sm:p-6 text-sm">
+                    <!-- Header Info -->
+                    <div class="mb-4 text-gray-600">
+                        <p><strong>ID:</strong> T-<span id="detailPenjualanId"></span></p>
+                        <p><strong>Tanggal:</strong> <span id="detailPenjualanTanggal"></span></p>
+                        <p><strong>Kasir:</strong> <span id="detailPenjualanKasir"></span></p>
+                    </div>
+                    
+                    <div class="border-t border-dashed border-gray-300 py-4 my-4">
+                        <table class="w-full text-left text-gray-600">
+                            <thead>
+                                <tr>
+                                    <th class="pb-2 font-medium">Barang</th>
+                                    <th class="pb-2 font-medium text-right">Qty</th>
+                                    <th class="pb-2 font-medium text-right">Harga</th>
+                                    <th class="pb-2 font-medium text-right">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailPenjualanItemsBody" class="divide-y divide-gray-100">
+                                <!-- Populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="flex justify-between items-center font-bold text-lg text-gray-900 mt-4 border-b border-dashed border-gray-300 pb-2">
+                        <span>Total:</span>
+                        <span id="detailPenjualanTotal" class="text-indigo-600"></span>
+                    </div>
+                    <div class="flex justify-between items-center text-gray-600 mt-2">
+                        <span>Bayar:</span>
+                        <span id="detailPenjualanBayar"></span>
+                    </div>
+                    <div class="flex justify-between items-center text-gray-600 mt-1">
+                        <span>Kembalian:</span>
+                        <span id="detailPenjualanKembalian"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Print Only HTML -->
+<style>
+    @media print {
+        /* Reset and Base Styles */
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+        
+        body * { visibility: hidden; }
+        #printArea, #printArea * { visibility: visible; }
+        
+        #printArea {
+            visibility: visible !important;
+            display: block !important;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            background: white;
+            color: black;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Hide UI Elements */
+        .main-content-wrapper, .sidebar-transition, header, nav, #chartSection, button, .no-print { 
+            display: none !important; 
+        }
+
+        /* Typography & Layout */
+        .print-header {
+            border-bottom: 2px solid #374151;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+        }
+
+        .print-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .print-stat-card {
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            background-color: #f9fafb !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        /* Table Styling */
+        table { 
+            border-collapse: collapse; 
+            width: 100%; 
+            margin-top: 1rem;
+            font-size: 10pt;
+        }
+        
+        th, td { 
+            border: 1px solid #d1d5db; 
+            padding: 8px 12px; 
+            text-align: left; 
+        }
+        
+        th { 
+            background-color: #f3f4f6 !important; 
+            font-weight: bold;
+            -webkit-print-color-adjust: exact; 
+            print-color-adjust: exact; 
+        }
+
+        .text-right { text-align: right; }
+        .font-bold { font-weight: bold; }
+        
+        /* Force Colors */
+        .text-green-600 { color: #059669 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .text-red-600 { color: #dc2626 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .text-indigo-600 { color: #4f46e5 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+</style>
+
+<div id="printArea" class="hidden">
+    <div class="print-header flex justify-between items-end">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">POS SYSTEM</h1>
+            <p class="text-gray-600">Laporan Operasional Toko</p>
+        </div>
+        <div class="text-right">
+            <h2 class="text-xl font-bold text-gray-800" id="printTitle">Rekapan Laporan</h2>
+            <p class="text-sm text-gray-500" id="printDate"></p>
+        </div>
+    </div>
+
+    <div class="print-grid">
+        <div class="print-stat-card">
+            <p class="text-xs uppercase text-gray-500 font-semibold mb-1">Total Penjualan</p>
+            <p id="printTotalSales" class="text-xl font-bold text-gray-900"></p>
+        </div>
+        <div class="print-stat-card">
+            <p class="text-xs uppercase text-gray-500 font-semibold mb-1">Total Modal</p>
+            <p id="printTotalPurchases" class="text-xl font-bold text-gray-900"></p>
+        </div>
+        <div class="print-stat-card">
+            <p class="text-xs uppercase text-gray-500 font-semibold mb-1">Keuntungan Bersih</p>
+            <p id="printTotalProfit" class="text-xl font-bold text-green-600"></p>
+        </div>
+    </div>
+    
+    <div class="mb-8">
+        <h3 class="text-lg font-bold text-gray-800 mb-3 border-l-4 border-indigo-600 pl-3">History Penjualan</h3>
+        <table class="w-full">
+            <thead>
+                <tr>
+                    <th>Tanggal & Waktu</th>
+                    <th>Kasir</th>
+                    <th class="text-right">Total Transaksi</th>
+                </tr>
+            </thead>
+            <tbody id="printPenjualanTableBody">
+            </tbody>
+        </table>
+    </div>
+
+    <div>
+        <h3 class="text-lg font-bold text-gray-800 mb-3 border-l-4 border-red-600 pl-3">History Pembelian (Modal)</h3>
+        <table class="w-full">
+            <thead>
+                <tr>
+                    <th>Tanggal & Waktu</th>
+                    <th>Admin</th>
+                    <th>Supplier</th>
+                    <th class="text-right">Total Pembelian</th>
+                </tr>
+            </thead>
+            <tbody id="printPembelianTableBody">
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-12 pt-8 border-t border-gray-200 text-center text-xs text-gray-400">
+        <p>Dokumen ini dihasilkan secara otomatis oleh sistem POS.</p>
+    </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+    let combinedChartInstance = null;
+    let currentPeriod = 'harian';
+    let lastSalesData = [];
+    let lastHistoryPembelian = [];
+    let lastHistoryPenjualan = [];
+
+    socket.on('new_transaction', () => {
+        loadLaporan();
+    });
+
+    async function switchPeriod() {
+        currentPeriod = document.getElementById('periodSelect').value;
+        let title = 'Grafik Penjualan Harian';
+        if (currentPeriod === 'bulanan') title = 'Grafik Penjualan Bulanan';
+        if (currentPeriod === 'tahunan') title = 'Grafik Penjualan Tahunan';
+        
+        document.getElementById('chartTitle').innerText = title;
+        
+        await loadLaporan();
+    }
+
+    // Set default filter date to today on load
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('filterDate').value = new Date().toLocaleDateString('en-CA');
+    });
+
+    async function loadLaporan() {
+        try {
+            const filterDateVal = document.getElementById('filterDate').value || new Date().toLocaleDateString('en-CA');
+            const d = new Date(filterDateVal);
+            
+            let startDate, endDate;
+            if (currentPeriod === 'harian') {
+                // 14 days ending on selected date
+                const startStr = new Date(d);
+                startStr.setDate(startStr.getDate() - 13);
+                startDate = startStr.toLocaleDateString('en-CA');
+                endDate = d.toLocaleDateString('en-CA');
+            } else if (currentPeriod === 'bulanan') {
+                // 6 months ending on selected date's month
+                const startStr = new Date(d);
+                startStr.setMonth(startStr.getMonth() - 5);
+                startStr.setDate(1);
+                
+                const endStr = new Date(d.getFullYear(), d.getMonth() + 1, 0); // Last day of chosen month
+                startDate = startStr.toLocaleDateString('en-CA');
+                endDate = endStr.toLocaleDateString('en-CA');
+            } else {
+                // 5 years ending on selected date's year
+                const startStr = new Date(d.getFullYear() - 4, 0, 1);
+                const endStr = new Date(d.getFullYear(), 11, 31);
+                startDate = startStr.toLocaleDateString('en-CA');
+                endDate = endStr.toLocaleDateString('en-CA');
+            }
+
+            const params = new URLSearchParams();
+            params.append('startDate', startDate);
+            params.append('endDate', endDate);
+            
+            const q = `?${params.toString()}`;
+
+            let apiPath = `/laporan/harian${q}`;
+            if (currentPeriod === 'bulanan') apiPath = `/laporan/bulanan${q}`;
+            if (currentPeriod === 'tahunan') apiPath = `/laporan/tahunan${q}`;
+
+            const [resSales, resHistoryPembelian, resHistoryPenjualan] = await Promise.all([
+                fetch(apiPath),
+                fetch(`/laporan/history-pembelian${q}`),
+                fetch(`/laporan/history-penjualan${q}`)
+            ]);
+
+            const salesData = await resSales.json();
+            const historyPembelianData = await resHistoryPembelian.json();
+            const historyPenjualanData = await resHistoryPenjualan.json();
+            
+            lastSalesData = salesData;
+            lastHistoryPembelian = historyPembelianData;
+            lastHistoryPenjualan = historyPenjualanData;
+
+            updateStats(salesData, historyPembelianData); // Assuming stats only need sales summary
+            renderCombinedChart(salesData);
+            renderHistoryTable(historyPembelianData);
+            renderHistoryPenjualanTable(historyPenjualanData);
+
+        } catch (error) {
+            console.error('Error loading reports:', error);
+        }
+    }
+
+    function updateStats(salesData, historyData) {
+        let totalSales = 0;
+        let totalPurchases = 0;
+        let totalProfit = 0;
+        
+        salesData.forEach(d => {
+            totalSales += Number(d.total_penjualan);
+            totalPurchases += Number(d.total_pembelian);
+            totalProfit += Number(d.keuntungan);
+        });
+
+        document.getElementById('statTotalSales').innerText = 'Rp ' + totalSales.toLocaleString('id-ID');
+        document.getElementById('statTotalPurchases').innerText = 'Rp ' + totalPurchases.toLocaleString('id-ID');
+        document.getElementById('statTotalProfit').innerText = 'Rp ' + totalProfit.toLocaleString('id-ID');
+        document.getElementById('statTotalQty').innerText = '-';
+    }
+
+    function renderCombinedChart(data) {
+        const salesDataPoints = [];
+        const volumeDataPoints = [];
+        
+        const filterDateVal = document.getElementById('filterDate').value || new Date().toLocaleDateString('en-CA');
+        const endD = new Date(filterDateVal);
+
+        if (currentPeriod === 'harian') {
+            // Pad the last 14 days ending on filterDate
+            for (let i = 13; i >= 0; i--) {
+                const d = new Date(endD);
+                d.setDate(d.getDate() - i);
+                const dateStr = d.toLocaleDateString('en-CA');
+                const found = data.find(x => new Date(x.tanggal).toLocaleDateString('en-CA') === dateStr);
+                
+                const label = `${d.getDate()}/${d.getMonth() + 1}`;
+                salesDataPoints.push({ label, y: found ? Number(found.total_penjualan) : 0 });
+                volumeDataPoints.push({ label, y: found ? Number(found.total_transaksi) : 0 });
+            }
+        } else if (currentPeriod === 'bulanan') {
+            // Pad the last 6 months ending on filterDate's month
+            for (let i = 5; i >= 0; i--) {
+                const d = new Date(endD);
+                d.setMonth(d.getMonth() - i);
+                const monthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                const found = data.find(x => x.bulan === monthStr);
+                
+                salesDataPoints.push({ label: monthStr, y: found ? Number(found.total_penjualan) : 0 });
+                volumeDataPoints.push({ label: monthStr, y: found ? Number(found.total_transaksi) : 0 });
+            }
+        } else {
+            // Pad the last 5 years ending on filterDate's year
+            for (let i = 4; i >= 0; i--) {
+                const yearStr = String(endD.getFullYear() - i);
+                const found = data.find(x => String(x.tahun) === yearStr);
+                
+                salesDataPoints.push({ label: yearStr, y: found ? Number(found.total_penjualan) : 0 });
+                volumeDataPoints.push({ label: yearStr, y: found ? Number(found.total_transaksi) : 0 });
+            }
+        }
+
+        if (combinedChartInstance) {
+            combinedChartInstance.destroy();
+        }
+
+        combinedChartInstance = new CanvasJS.Chart("combinedSalesChart", {
+            animationEnabled: true,
+            theme: "light2",
+            exportEnabled: true,
+            title: {
+                text: ""
+            },
+            toolTip: {
+                shared: true
+            },
+            legend: {
+                cursor: "pointer",
+                itemclick: function (e) {
+                    if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+                        e.dataSeries.visible = false;
+                    } else {
+                        e.dataSeries.visible = true;
+                    }
+                    e.chart.render();
+                }
+            },
+            axisX: {
+                labelFontColor: "#9ca3af",
+                labelFontSize: 11,
+                lineThickness: 0,
+                tickThickness: 0
+            },
+            axisY: {
+                title: "Pendapatan",
+                titleFontColor: "#4f46e5",
+                lineColor: "#4f46e5",
+                labelFontColor: "#4f46e5",
+                tickColor: "#4f46e5",
+                includeZero: true,
+                prefix: "Rp ",
+                labelFontSize: 11,
+                gridDashType: "dash",
+                gridColor: "#f3f4f6"
+            },
+            axisY2: {
+                title: "Volume Transaksi",
+                titleFontColor: "#10b981",
+                lineColor: "#10b981",
+                labelFontColor: "#10b981",
+                tickColor: "#10b981",
+                includeZero: true,
+                labelFontSize: 11,
+                interval: 1
+            },
+            data: [{
+                type: "spline",
+                name: "Total Pendapatan",
+                showInLegend: true,
+                axisYType: "primary",
+                yValueFormatString: "Rp #,##0",
+                color: "#4f46e5",
+                markerSize: 8,
+                markerType: "circle",
+                lineThickness: 2,
+                dataPoints: salesDataPoints
+            }, {
+                type: "spline",
+                name: "Total Transaksi",
+                axisYType: "secondary",
+                showInLegend: true,
+                yValueFormatString: "#,##0 Transaksi",
+                color: "#10b981",
+                markerSize: 8,
+                markerType: "square",
+                lineThickness: 2,
+                dataPoints: volumeDataPoints
+            }]
+        });
+        combinedChartInstance.render();
+    }
+
+
+
+
+    function renderHistoryTable(data) {
+        const tbody = document.getElementById('historyTableBody');
+        tbody.innerHTML = '';
+        
+        if (!data || data.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
+                        Tidak ada riwayat pembelian untuk periode ini.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        data.slice(0, 10).forEach(row => {
+            const dateStr = new Date(row.created_at).toLocaleString('id-ID', { 
+                day: '2-digit', month: 'short', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+
+            tbody.innerHTML += `
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${dateStr}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${row.admin_name || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.nama_supplier || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-red-600">Rp ${Number(row.total_harga).toLocaleString('id-ID')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                        <button onclick="viewDetail(${row.id})" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded-md transition-colors hover:bg-indigo-100">Detail</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    async function viewDetail(id) {
+        try {
+            const response = await fetch(`/laporan/history-pembelian/${id}`);
+            if (!response.ok) throw new Error('Failed to fetch details');
+            const data = await response.json();
+
+            const tx = data.transaksi;
+            document.getElementById('detailId').innerText = String(tx.id).padStart(4, '0');
+            document.getElementById('detailTanggal').innerText = new Date(tx.created_at).toLocaleString('id-ID', {
+                day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+            document.getElementById('detailAdmin').innerText = tx.admin_name || '-';
+            document.getElementById('detailSupplier').innerText = tx.nama_supplier || '-';
+            document.getElementById('detailTotal').innerText = 'Rp ' + Number(tx.total_harga).toLocaleString('id-ID');
+
+            const tbody = document.getElementById('detailItemsBody');
+            tbody.innerHTML = '';
+            data.items.forEach(item => {
+                tbody.innerHTML += `
+                    <tr class="text-xs">
+                        <td class="py-2 pr-2">${item.nama_barang}</td>
+                        <td class="py-2 px-2 text-right">${item.qty}</td>
+                        <td class="py-2 px-2 text-right">Rp ${Number(item.harga_beli).toLocaleString('id-ID')}</td>
+                        <td class="py-2 pl-2 text-right font-medium">Rp ${Number(item.subtotal).toLocaleString('id-ID')}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('receiptModal').classList.remove('hidden');
+        } catch (error) {
+            console.error('Error fetching detail:', error);
+            alert('Gagal memuat detail pembelian.');
+        }
+    }
+
+    function closeDetailModal() {
+        document.getElementById('receiptModal').classList.add('hidden');
+    }
+
+    function renderHistoryPenjualanTable(data) {
+        const tbody = document.getElementById('historyPenjualanBody');
+        tbody.innerHTML = '';
+        
+        if (!data || data.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                        Tidak ada riwayat penjualan untuk periode ini.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        data.slice(0, 10).forEach(row => {
+            const dateStr = new Date(row.created_at).toLocaleString('id-ID', { 
+                day: '2-digit', month: 'short', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+
+            tbody.innerHTML += `
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${dateStr}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${row.kasir_name || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-green-600">Rp ${Number(row.total_harga).toLocaleString('id-ID')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                        <button onclick="viewDetailPenjualan(${row.id})" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded-md transition-colors hover:bg-indigo-100">Detail</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    async function viewDetailPenjualan(id) {
+        try {
+            const response = await fetch(`/laporan/history-penjualan/${id}`);
+            if (!response.ok) throw new Error('Failed to fetch details');
+            const data = await response.json();
+
+            const tx = data.transaksi;
+            document.getElementById('detailPenjualanId').innerText = String(tx.id).padStart(4, '0');
+            document.getElementById('detailPenjualanTanggal').innerText = new Date(tx.created_at).toLocaleString('id-ID', {
+                day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+            document.getElementById('detailPenjualanKasir').innerText = tx.kasir_name || '-';
+            
+            document.getElementById('detailPenjualanTotal').innerText = 'Rp ' + Number(tx.total_harga).toLocaleString('id-ID');
+            document.getElementById('detailPenjualanBayar').innerText = 'Rp ' + Number(tx.bayar).toLocaleString('id-ID');
+            document.getElementById('detailPenjualanKembalian').innerText = 'Rp ' + Number(tx.kembalian).toLocaleString('id-ID');
+
+            const tbody = document.getElementById('detailPenjualanItemsBody');
+            tbody.innerHTML = '';
+            data.items.forEach(item => {
+                tbody.innerHTML += `
+                    <tr class="text-xs">
+                        <td class="py-2 pr-2">${item.nama_barang}</td>
+                        <td class="py-2 px-2 text-right">${item.qty}</td>
+                        <td class="py-2 px-2 text-right">Rp ${Number(item.harga).toLocaleString('id-ID')}</td>
+                        <td class="py-2 pl-2 text-right font-medium">Rp ${Number(item.subtotal).toLocaleString('id-ID')}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('receiptPenjualanModal').classList.remove('hidden');
+        } catch (error) {
+            console.error('Error fetching detail penjualan:', error);
+            alert('Gagal memuat detail penjualan.');
+        }
+    }
+
+    function closeDetailPenjualanModal() {
+        document.getElementById('receiptPenjualanModal').classList.add('hidden');
+    }
+
+    function printRekapan() {
+        const d = new Date(document.getElementById('filterDate').value || new Date());
+        
+        let periodLabel = "Harian";
+        let col1Label = "Tanggal";
+        if (currentPeriod === 'bulanan') {
+            periodLabel = "Bulanan";
+            col1Label = "Bulan";
+        } else if (currentPeriod === 'tahunan') {
+            periodLabel = "Tahunan";
+            col1Label = "Tahun";
+        }
+
+        document.getElementById('printTitle').innerText = `Rekapan Laporan ${periodLabel}`;
+        document.getElementById('printDate').innerText = `Dicetak pada: ${new Date().toLocaleString('id-ID')}`;
+
+        // Copy stats
+        document.getElementById('printTotalSales').innerText = document.getElementById('statTotalSales').innerText;
+        document.getElementById('printTotalPurchases').innerText = document.getElementById('statTotalPurchases').innerText;
+        document.getElementById('printTotalProfit').innerText = document.getElementById('statTotalProfit').innerText;
+
+        // Build Penjualan table
+        const tbodyPenjualan = document.getElementById('printPenjualanTableBody');
+        tbodyPenjualan.innerHTML = '';
+        if (!lastHistoryPenjualan || lastHistoryPenjualan.length === 0) {
+            tbodyPenjualan.innerHTML = '<tr><td colspan="3" class="text-center py-4">Tidak ada data untuk periode ini.</td></tr>';
+        } else {
+            lastHistoryPenjualan.forEach(row => {
+                const dateStr = new Date(row.created_at).toLocaleString('id-ID', { 
+                    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+                tbodyPenjualan.innerHTML += `
+                    <tr>
+                        <td>${dateStr}</td>
+                        <td>${row.kasir_name || '-'}</td>
+                        <td class="text-right font-bold text-green-600">Rp ${Number(row.total_harga).toLocaleString('id-ID')}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Build Pembelian table
+        const tbodyPembelian = document.getElementById('printPembelianTableBody');
+        tbodyPembelian.innerHTML = '';
+        if (!lastHistoryPembelian || lastHistoryPembelian.length === 0) {
+            tbodyPembelian.innerHTML = '<tr><td colspan="4" class="text-center py-4">Tidak ada data untuk periode ini.</td></tr>';
+        } else {
+            lastHistoryPembelian.forEach(row => {
+                const dateStr = new Date(row.created_at).toLocaleString('id-ID', { 
+                    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+                tbodyPembelian.innerHTML += `
+                    <tr>
+                        <td>${dateStr}</td>
+                        <td>${row.admin_name || '-'}</td>
+                        <td>${row.nama_supplier || '-'}</td>
+                        <td class="text-right font-bold text-red-600">Rp ${Number(row.total_harga).toLocaleString('id-ID')}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Trigger native print
+        window.print();
+    }
+
+    loadLaporan();
+</script>
+
+<%- include('partials/footer') %>
