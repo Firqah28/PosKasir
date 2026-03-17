@@ -2,10 +2,19 @@
 <div id="sidebar" class="fixed inset-y-0 left-0 z-50 bg-indigo-700 text-white shadow-lg flex flex-col hidden md:flex sidebar-transition overflow-hidden">
     <div id="sidebar-header" class="flex h-16 shrink-0 items-center justify-between border-b border-indigo-600 bg-indigo-800 px-4">
         <h1 class="text-xl font-bold tracking-tight sidebar-header-text">System Penjualan</h1>
-        <button onclick="toggleSidebar()" class="p-1 rounded-md hover:bg-indigo-600 focus:outline-none">
+        
+        <!-- Desktop Toggle -->
+        <button onclick="toggleSidebar()" class="hidden md:block p-1 rounded-md hover:bg-indigo-600 focus:outline-none">
             <svg id="toggleIcon" class="h-6 w-6 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path id="iconExpand" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
                 <path id="iconCollapse" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+            </svg>
+        </button>
+
+        <!-- Mobile Close -->
+        <button onclick="toggleSidebar()" class="md:hidden p-1 rounded-md hover:bg-indigo-600 focus:outline-none">
+            <svg class="h-6 w-6 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
         </button>
     </div>
@@ -54,14 +63,20 @@
 <script>
     function toggleSidebar() {
         const body = document.body;
-        const isMini = body.classList.toggle('sidebar-mini');
-        localStorage.setItem('sidebar-mini', isMini);
-        updateSidebarIcons(isMini);
+        if (window.innerWidth < 768) {
+            body.classList.toggle('sidebar-open');
+        } else {
+            const isMini = body.classList.toggle('sidebar-mini');
+            localStorage.setItem('sidebar-mini', isMini);
+            updateSidebarIcons(isMini);
+        }
     }
 
     function updateSidebarIcons(isMini) {
         const iconExpand = document.getElementById('iconExpand');
         const iconCollapse = document.getElementById('iconCollapse');
+        if (!iconExpand || !iconCollapse) return;
+        
         if (isMini) {
             iconExpand.classList.remove('hidden');
             iconCollapse.classList.add('hidden');
@@ -73,7 +88,9 @@
 
     // Initialize sidebar icons on page load
     window.addEventListener('DOMContentLoaded', () => {
-        const isMini = localStorage.getItem('sidebar-mini') === 'true';
-        updateSidebarIcons(isMini);
+        if (window.innerWidth >= 768) {
+            const isMini = localStorage.getItem('sidebar-mini') === 'true';
+            updateSidebarIcons(isMini);
+        }
     });
 </script>

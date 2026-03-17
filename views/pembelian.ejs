@@ -4,6 +4,14 @@
 
     <!-- Main Content -->
     <div class="flex-1 main-content-wrapper sidebar-transition flex flex-col h-screen overflow-hidden">
+        <!-- Topbar for mobile -->
+        <div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 md:hidden">
+            <button type="button" onclick="toggleSidebar()" class="-m-2.5 p-2.5 text-gray-700 md:hidden border rounded hover:bg-gray-50 focus:outline-none">
+                <span class="sr-only">Open sidebar</span>
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+            </button>
+            <div class="flex-1 font-bold text-lg text-indigo-700">POS System</div>
+        </div>
         <main class="flex-1 overflow-y-auto">
             <div class="py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
                 <h1 class="text-3xl font-bold tracking-tight text-gray-900 mb-6">Pembelian (Restock)</h1>
@@ -39,7 +47,7 @@
                     </div>
 
                     <!-- Right Column: Cart & Checkout -->
-                    <div class="bg-white p-6 rounded-lg shadow flex flex-col h-[calc(100vh-8rem)]">
+                    <div class="bg-white p-6 rounded-lg shadow flex flex-col h-auto lg:h-[calc(100vh-8rem)]">
                         <div class="mb-4 pb-4 border-b border-gray-200">
                             <h2 class="text-xl font-bold text-gray-900 mb-4">Daftar Pembelian</h2>
                             <label for="supplier_id" class="block text-sm font-medium text-gray-700">Supplier Tujuan</label>

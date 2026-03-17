@@ -13,28 +13,61 @@
             --sidebar-width: 16rem;
             --sidebar-mini-width: 4.5rem;
         }
-        .sidebar-transition { transition: width 0.3s ease, margin-left 0.3s ease; }
+        .sidebar-transition { transition: width 0.3s ease, margin-left 0.3s ease, transform 0.3s ease; }
         
-        /* Sidebar Widths */
-        #sidebar { width: var(--sidebar-width); }
-        .main-content-wrapper { margin-left: var(--sidebar-width); }
-        
-        body.sidebar-mini #sidebar { width: var(--sidebar-mini-width); }
-        body.sidebar-mini .main-content-wrapper { margin-left: var(--sidebar-mini-width); }
-        
-        /* Hide text in mini mode */
-        body.sidebar-mini .sidebar-text { display: none; }
-        body.sidebar-mini .sidebar-header-text { display: none; }
-        body.sidebar-mini .sidebar-nav-item { justify-content: center; padding-left: 0; padding-right: 0; }
-        body.sidebar-mini .sidebar-nav-item svg { margin-right: 0; }
-        body.sidebar-mini #sidebar-header { justify-content: center; padding: 0.5rem; }
+        /* Desktop Sidebar Widths */
+        @media (min-width: 768px) {
+            #sidebar { width: var(--sidebar-width); }
+            .main-content-wrapper { margin-left: var(--sidebar-width); }
+            
+            body.sidebar-mini #sidebar { width: var(--sidebar-mini-width); }
+            body.sidebar-mini .main-content-wrapper { margin-left: var(--sidebar-mini-width); }
+            
+            /* Hide text in mini mode */
+            body.sidebar-mini .sidebar-text { display: none; }
+            body.sidebar-mini .sidebar-header-text { display: none; }
+            body.sidebar-mini .sidebar-nav-item { justify-content: center; padding-left: 0; padding-right: 0; }
+            body.sidebar-mini .sidebar-nav-item svg { margin-right: 0; }
+            body.sidebar-mini #sidebar-header { justify-content: center; padding: 0.5rem; }
+        }
+
+        /* Mobile Sidebar state */
+        @media (max-width: 767px) {
+            #sidebar { 
+                width: var(--sidebar-width); 
+                transform: translateX(-100%);
+            }
+            body.sidebar-open #sidebar { 
+                transform: translateX(0);
+                display: flex !important;
+            }
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background-color: rgba(31, 41, 55, 0.75);
+                z-index: 45;
+            }
+            body.sidebar-open .sidebar-overlay {
+                display: block;
+            }
+            .main-content-wrapper { margin-left: 0 !important; }
+        }
+
+        /* Global utilities */
+        .responsive-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
     </style>
 </head>
 <body class="h-full">
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
     <script>
         // Apply sidebar state immediately to prevent flicker
         (function() {
             const isMini = localStorage.getItem('sidebar-mini') === 'true';
-            if (isMini) document.body.classList.add('sidebar-mini');
+            if (isMini && window.innerWidth >= 768) document.body.classList.add('sidebar-mini');
         })();
     </script>
